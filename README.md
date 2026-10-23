@@ -110,9 +110,9 @@ CALCULATE(
 
 ## Files
 
-- [`Customer Churn Prediction & Retention.pbix`](Customer%20Churn%20Prediction%20%26%20Retention.pbix): the Power BI report (open with Power BI Desktop)
+- [`Customer-Churn-Analysis-Retention.pbix`](Customer-Churn-Analysis-Retention.pbix): the Power BI report (open with Power BI Desktop)
 - [`screenshots/`](screenshots): dashboard page images
-- [`Telco_customer_churn.xlsx`](Telco_customer_churn.xlsx): raw data
+- [`Telco_customer_Churn.xlsx`](Telco_customer_Churn.xlsx): raw data
 - [`cleaned_telco_churn.csv`](cleaned_telco_churn.csv): cleaned data
 - [`Data cleaning & testing/data cleaning.ipynb`](Data%20cleaning%20%26%20testing/data%20cleaning.ipynb): cleans the raw data
 - [`Data cleaning & testing/data testing.ipynb`](Data%20cleaning%20%26%20testing/data%20testing.ipynb): statistical tests (chi-square and t-tests) and churn-driver charts
