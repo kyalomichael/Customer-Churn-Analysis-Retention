@@ -1,85 +1,128 @@
-# Customer Churn Prediction & Retention
+# Customer Churn Analysis & Retention
 
-An end-to-end executive Power BI analytics platform designed to uncover primary revenue leaks, technical support gaps, customer retention risks, and operational churn drivers for a telecommunications ecosystem.
+A 3-page Power BI dashboard that shows why customers leave a telecom company, which customers are most at risk, and what to do about it. It uses the public IBM Telco customer churn dataset (7,043 customers).
 
----
+**Tools:** Power BI (DAX, star-schema model), Python (pandas, scipy)
 
-## 📊 Executive Summary
-This 3-page executive diagnostic dashboard translates raw telecommunications subscriber data into strategic retention playbooks. Built on a clean star-schema model, the platform analyzes churn patterns across 7,043 customer accounts, isolating key behavioral drivers and revenue risks across contractual tiers and technical support services.
-
-### Key Performance Highlights
-- **Total Customer Accounts:** 7,043 subscriber profiles analyzed.
-- **Overall Churn Rate:** 26.5% overall customer attrition rate.
-- **Critical Vulnerability Window:** ~67% of annual churn occurs within the first 12 months of onboarding.
-- **Primary Churn Spike:** Fiber Optic subscribers on Month-to-Month contracts exhibit a 54.6% churn rate.
-- **Service Gap Impact:** Customers lacking technical support add-ons churn at nearly 3x the rate of enrolled users.
+Built by Michael Kyalo ([LinkedIn](https://www.linkedin.com/in/kyalo-michael-7548483b5/))
 
 ---
 
-## 🏗️ Architecture & Pipeline Phases
-
-### Pipeline Architecture
-- **Data Preprocessing & EDA:** Python (`pandas`, `numpy`) & Jupyter Notebooks
-- **Database Engine:** Relational SQL schema design (`churn_analysis_queries.sql`)
-- **Data Pipeline:** Python ETL / SQL queries ingested into Power BI Desktop
-- **Data Schema:** Star Schema centered on customer service and subscription facts
-
-### Pipeline Phases
-* **Phase 1: Data Preprocessing & Hygiene (`cleaned_telco_churn.csv`)** — Resolved missing value anomalies in high-impact columns (such as `TotalCharges` for fresh sign-ups), standardized data types, and mapped categorical text into uniform flags.
-* **Phase 2: Exploratory Data Analysis (`phase2_statistical_eda.ipynb`)** — Investigated demographic drivers, payment frictions, and service engagement patterns to map customer vulnerability windows.
-* **Phase 3: Relational SQL Modeling (`churn_analysis_queries.sql`)** — Designed logical schema structures and executed conditional aggregations, window functions, and multi-table joins to isolate high-risk customer segments prior to visualization.
-* **Phase 4: Power BI Modeling & DAX Engine** — Configured star-schema relationships and engineered calculated virtual summary tables (`Service_Risk_Summary`) using `UNION` and `SELECTCOLUMNS` for cross-service evaluation without circular dependencies.
-* **Phase 5: Executive UI/UX Design** — Built a modern, 3-page interactive report adhering to Fluent2 standards with custom card containers, off-white canvas (`#F8F9FA`), deep indigo accents (`#1A1961`), and vertical category side banners.
-
-### Star Schema Relationships
-- **`fact_churn`** ↔ **`dim_customers`** (1:* via `CustomerID`)
-- **`fact_churn`** ↔ **`dim_services`** (1:* via `ServiceID`)
-- **`fact_churn`** ↔ **`dim_contracts`** (1:* via `ContractID`)
-- **`Service_Risk_Summary`**: Custom calculated DAX virtual table for cross-service evaluation.
-
----
-
-## 🖥️ Dashboard Preview & Structure
+## Dashboard Preview
 
 ### Page 1: Executive Overview
-High-level KPI cards (Total Customers, Overall Churn Rate, Average Monthly Charges, Tech Support Deficit Rate), monthly subscription trajectory charts, and overall financial exposure across tenure cohorts.
+Headline KPIs (total customers, total churned, lost monthly revenue, overall churn rate), plus churn by demographics, tenure group, contract type, payment method and service subscription.
 
-![Executive Overview Dashboard](screenshots/page1_executive_summary.png)
-
----
+![Executive Overview](screenshots/page1_executive_summary.png)
 
 ### Page 2: Root Cause & Driver Analysis
-Monthly charge tier distributions, side-by-side clustered bar matrices comparing technical support add-ons (`Tech Support`, `Online Security`, `Online Backup`, `Device Protection`), and contract cross-segmentation isolating Fiber Optic vs. DSL vulnerabilities.
+Churn by monthly charge tier, by add-on service (Tech Support, Online Security, Online Backup, Device Protection), and by contract type and internet service.
 
-![Root Cause Analysis Dashboard](screenshots/page2_root_cause.png)
-
----
+![Root Cause Analysis](screenshots/page2_root_cause.png)
 
 ### Page 3: Risk Segmentation & Action Plan
-Interactive customer risk matrix categorizing subscriber profiles into high, medium, and low churn tiers, accompanied by targeted cohort action lists for immediate retention outreach and VIP discount offers.
+Customers grouped into high, medium and low churn risk, with action lists for retention outreach.
 
-![Risk Segmentation Dashboard](screenshots/page3_risk_segmentation.png)
-
-
-## 📈 Key Diagnostic Findings & Churn Triggers
-* **Fiber Optic + M2M Vulnerability**: The combination of Fiber Optic internet and Month-to-Month contracts drives churn rates as high as **54.6%**, pointing to a lack of long-term commitment incentives.
-* **The Technical Support Deficit**: Customers without technical support add-ons churn at nearly **3x the rate** of those enrolled in support tiers.
-* **Onboarding Window**: Approximately **67% of total annual churn** occurs within the first 12 months of customer tenure.
-* **Payment Friction**: Electronic check users suffer disproportionately higher churn rates (~45.2%), signaling manual billing friction or processing drop-offs.
+![Risk Segmentation](screenshots/page3_risk_segmentation.png)
 
 ---
 
-## ⚙️ Core DAX Measures
+## Key Findings
 
-```dax
-// Total Churned Customers
-Total Churned Customers = CALCULATE(COUNT(fact_churn[CustomerID]), fact_churn[Churn_Flag] = 1)
+**Scale:** 7,043 customers, 1,869 of whom have churned (26.5%). Churned customers were paying about $139.1K a month in total, which is 30.5% of all monthly revenue.
 
-// Overall Churn Rate
-Overall Churn Rate = DIVIDE([Total Churned Customers], COUNT(fact_churn[CustomerID]), 0)
+1. **Contract type is the strongest signal.** Month-to-month customers churn at 42.7%, against 11.3% on one-year contracts and 2.8% on two-year contracts.
+2. **Fiber optic customers on month-to-month contracts are the biggest risk.** Their churn rate is 54.6%, more than double the overall rate.
+3. **Customers without tech support leave far more often.** 41.6% of them churn, against 15.2% of customers who have it, about 2.7 times as often. Online Security shows a similar gap (41.8% without, 14.6% with).
+4. **The first year is the danger zone.** Customers in their first year churn at 47.4%, falling to 9.5% after four years. About 56% of all churned customers left within their first 12 months.
+5. **Electronic check payers churn more.** 45.3% of electronic check customers churn, against 15% to 19% for the other payment methods. This may point to billing friction.
 
-// Service Churn Rate
-Service Churn Rate = AVERAGE(Service_Risk_Summary[Churn_Flag])
+---
 
-// Support Deficit Benchmark
-Support Deficit Rate = 0.285
+## Recommendations
+
+These are hypotheses to test, based on the patterns above.
+
+- **Offer annual-contract incentives to fiber optic customers on month-to-month plans,** for example a discount for switching to a 12-month term.
+- **Bundle tech support** into early plans or offer it free for the first months, since customers without it churn at a much higher rate.
+- **Build a first-year retention programme,** such as check-in contacts and offers during months 1 to 12.
+- **Encourage automatic payments** for electronic check customers, for example with a small bill credit.
+
+---
+
+## Method
+
+1. **Clean (Python, pandas):** fixed missing `TotalCharges` values for new sign-ups, grouped customers into tenure cohorts (0-1, 1-2, 2-4 and 4+ years), counted add-on services per customer, and exported the cleaned data. See `data cleaning.ipynb`.
+2. **Test (Python, scipy):** checked which factors are statistically linked to churn (see below). See `data testing.ipynb`.
+3. **Model and visualise (Power BI):** built a star schema with DAX measures and a 3-page report.
+
+---
+
+## Statistical Testing
+
+Chi-square tests for categorical factors and t-tests for numeric ones, all against the churn flag. Every factor tested was significant (p < 0.05).
+
+| Factor | Test | Result |
+|---|---|---|
+| Contract | Chi-square | 1184.6 (strongest) |
+| Online Security | Chi-square | 850.0 |
+| Tech Support | Chi-square | 828.2 |
+| Internet Service | Chi-square | 732.3 |
+| Payment Method | Chi-square | 648.1 |
+| Senior Citizen | Chi-square | 159.4 |
+| Monthly Charges | t-test | 18.4 (churned customers pay more) |
+| Tenure | t-test | -34.8 (churned customers have shorter tenure) |
+| CLTV | t-test | -10.7 (churned customers have lower lifetime value) |
+
+With about 7,000 customers, almost any difference shows up as significant, so the size of each difference (the churn rates above) matters more than the p-values.
+
+---
+
+## Data Model
+
+Star schema centred on `fact_churn`:
+
+- `fact_churn` to `dim_customers` (one-to-many on `CustomerID`)
+- `fact_churn` to `dim_services` (one-to-many on `ServiceID`)
+- `fact_churn` to `dim_contracts` (one-to-many on `ContractID`)
+- `Service_Risk_Summary`: a calculated DAX table used to compare churn across services
+
+### Core DAX Measures
+
+```
+Total Churned Customers =
+CALCULATE(COUNT(fact_churn[CustomerID]), fact_churn[Churn_Flag] = 1)
+
+Overall Churn Rate =
+DIVIDE([Total Churned Customers], COUNT(fact_churn[CustomerID]), 0)
+
+Service Churn Rate =
+AVERAGE(Service_Risk_Summary[Churn_Flag])
+
+Lost Monthly Revenue =
+CALCULATE(
+    SUM(telco_churn[Monthly_Charges]),
+    telco_churn[Churn_Value] = 1
+)
+```
+
+---
+
+## Files
+
+- [`Customer Churn Prediction & Retention.pbix`](Customer%20Churn%20Prediction%20%26%20Retention.pbix): the Power BI report (open with Power BI Desktop)
+- [`screenshots/`](screenshots): dashboard page images
+- [`Telco_customer_churn.xlsx`](Telco_customer_churn.xlsx): raw data
+- [`cleaned_telco_churn.csv`](cleaned_telco_churn.csv): cleaned data
+- [`Data cleaning & testing/data cleaning.ipynb`](Data%20cleaning%20%26%20testing/data%20cleaning.ipynb): cleans the raw data
+- [`Data cleaning & testing/data testing.ipynb`](Data%20cleaning%20%26%20testing/data%20testing.ipynb): statistical tests (chi-square and t-tests) and churn-driver charts
+
+---
+
+## About Me
+
+I'm Michael Kyalo, an aspiring data analyst who enjoys finding the reasons behind business problems in data. This project combines Python statistical testing and Power BI, and I'm looking for a data analyst role where I can do the same with real business data.
+
+**Tools:** Python (pandas, scipy), Power BI (DAX)
+
+**Connect:** [LinkedIn](https://www.linkedin.com/in/kyalo-michael-7548483b5/) | [mikekyalo.c@gmail.com](mailto:mikekyalo.c@gmail.com)
